@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+    <style type="text/css">
+        output#chat {
+            display: block;
+            width: 220px;
+            padding: 15px 8px;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <h1>My Chat</h1>
+
+    <form id="form-message">
+        <input type="text" id="message" placeholder="type your message">
+        <button type="submit">Enviar</button>
+    </form>
+
+    <output id="chat"></output>
+
+    <script type="text/javascript">
+
+        const input = document.getElementById('message');
+        const output = document.getElementById('chat');
+
+        var conn = new WebSocket('ws://localhost:8081');
+        
+        conn.onopen = function(e) {
+            console.log("Connection established!");
+        };
+
+        conn.onmessage = function(e) {
+            const message = document.createElement('div');
+            message.classList.add('text-left');
+            message.textContent = e.data;
+            output.appendChild(message);
+        };
+
+        document.getElementById('form-message').addEventListener('submit', function(e){
+            e.preventDefault();
+            conn.send(input.value);
+
+            const message = document.createElement('div');
+            message.classList.add('text-right');
+            message.textContent = input.value;
+            output.appendChild(message);
+
+            input.value = '';
+        });
+    </script>
+</body>
+</html>

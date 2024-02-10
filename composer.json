@@ -1,0 +1,15 @@
+{
+    "name": "rafael/chat",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Rafael\\Chat\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Rafael Rodrigues Alves Teixeira",
+            "email": "rafaelrat2019@gmail.com"
+        }
+    ]
+}
