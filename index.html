@@ -6,10 +6,25 @@
     <title>Document</title>
     
     <style type="text/css">
+
+        form#message-form {
+            display: none;
+        }
+
         output#chat {
             display: block;
             width: 220px;
-            padding: 15px 8px;
+            padding: 15px 2px;
+        }
+
+        .system {
+            margin: 12px 0;
+            color: red;
+        }
+
+        .message {
+            margin: 20px 0;
+            font-size: 15pt;
         }
 
         .text-left {
@@ -24,7 +39,12 @@
 <body>
     <h1>My Chat</h1>
 
-    <form id="form-message">
+    <form id="user-form">
+        <input type="text" id="username" placeholder="Enter username">
+        <button>Connect</button>
+    </form>
+
+    <form id="message-form">
         <input type="text" id="message" placeholder="type your message">
         <button type="submit">Enviar</button>
     </form>
@@ -36,29 +56,63 @@
         const input = document.getElementById('message');
         const output = document.getElementById('chat');
 
-        var conn = new WebSocket('ws://localhost:8081');
-        
-        conn.onopen = function(e) {
-            console.log("Connection established!");
-        };
-
-        conn.onmessage = function(e) {
-            const message = document.createElement('div');
-            message.classList.add('text-left');
-            message.textContent = e.data;
-            output.appendChild(message);
-        };
-
-        document.getElementById('form-message').addEventListener('submit', function(e){
+        document.getElementById('user-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            conn.send(input.value);
 
-            const message = document.createElement('div');
-            message.classList.add('text-right');
-            message.textContent = input.value;
-            output.appendChild(message);
+            let username = document.getElementById('username').value;
 
-            input.value = '';
+            if(username.length == 0) {
+                alert('Preencha o nome de usuário');
+                return;
+            }
+
+            var socket = new WebSocket('ws://localhost:8081');
+        
+            socket.onopen = function(e) {
+                const username = document.getElementById('username').value;
+
+                document.getElementById('user-form').style.display = 'none';
+                document.getElementById('message-form').style.display = 'block';
+
+                socket.send(JSON.stringify({ type: 'connect', username: username }));
+            };
+
+            socket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+
+                if(data.type == 'system') {
+                    const alert = document.createElement('div');
+                    alert.classList.add('system');
+                    alert.innerHTML = `
+                        <strong>${data.message}</strong><br>
+                    `;
+                    output.appendChild(alert);
+                } else if(data.type == 'chat') {
+                    const message = document.createElement('div');
+                    message.classList.add('message', 'text-left');
+                    message.innerHTML = `
+                        <strong><i>${data.username} disse:</i></strong></em>
+                        ${data.message}
+                    `;
+                    output.appendChild(message);
+                }
+
+            };
+
+            document.getElementById('message-form').addEventListener('submit', function(e){
+                e.preventDefault();
+                
+                socket.send(JSON.stringify({type: 'chat', message: input.value}));
+
+                const message = document.createElement('div');
+                message.classList.add('message', 'text-right');
+                message.innerHTML = `
+                    <br>${input.value}
+                `;
+                output.appendChild(message);
+
+                input.value = '';
+            });
         });
     </script>
 </body>
