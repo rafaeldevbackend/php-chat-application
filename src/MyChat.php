@@ -8,7 +8,6 @@ use Ratchet\ConnectionInterface;
 class MyChat implements MessageComponentInterface {
     
     private $clients;
-    private $users;
 
     public function __construct() {
         $this->clients = new \SPLObjectStorage;
@@ -23,12 +22,12 @@ class MyChat implements MessageComponentInterface {
         
         foreach($this->clients as $client) {
             if($conn !== $client) {
-                $client->send(json_encode(['type' => 'system', 'message' => "Usuário {$this->users[$conn->resourceId]} desconectou"]));            
+                $client->send(json_encode(['type' => 'system', 'message' => "Usuário {$conn->username} desconectou"]));            
             }
         }
 
         $this->clients->detach($conn);
-        echo "Connection {$this->users[$conn->resourceId]} has disconnected\n";
+        echo "Connection {$conn->username} has disconnected\n";
     }
 
     public function onError(ConnectionInterface $conn, \Exception $e) {
@@ -41,12 +40,12 @@ class MyChat implements MessageComponentInterface {
         $data = json_decode($msg);
 
         if($data->type == 'connect') {
-            $this->users[$from->resourceId] = $data->username;
-            $from->send(json_encode(['type' => 'system', 'message' => "Welcome, {$data->username}"]));
+            $from->username = $data->username;
+            $from->send(json_encode(['type' => 'system', 'message' => "Welcome, {$from->username}"]));
 
             foreach($this->clients as $client) {
                 if($from !== $client) {
-                    $client->send(json_encode(['type' => 'system', 'message' => "Usuário {$this->users[$from->resourceId]} entrou"]));            
+                    $client->send(json_encode(['type' => 'system', 'message' => "Usuário {$from->username} entrou"]));            
                 }
             }
             return;
@@ -54,7 +53,7 @@ class MyChat implements MessageComponentInterface {
 
         foreach($this->clients as $client) {
             if($from !== $client) {
-                $client->send(json_encode(['type' => 'chat', 'username' => $this->users[$from->resourceId], 'message' => $data->message]));            
+                $client->send(json_encode(['type' => 'chat', 'username' => $from->username, 'message' => $data->message]));            
             }
         }
     }
