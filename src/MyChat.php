@@ -22,7 +22,7 @@ class MyChat implements MessageComponentInterface {
         
         foreach($this->clients as $client) {
             if($conn !== $client) {
-                $client->send(json_encode(['type' => 'system', 'message' => "Usuário {$conn->username} desconectou"]));            
+                $client->send(json_encode(["messageComponent" => "<div class='system'><strong>Usuário $conn->username desconectou</strong></div>"]));            
             }
         }
 
@@ -41,19 +41,28 @@ class MyChat implements MessageComponentInterface {
 
         if($data->type == 'connect') {
             $from->username = $data->username;
-            $from->send(json_encode(['type' => 'system', 'message' => "Welcome, {$from->username}"]));
+
+            $from->send(json_encode(["messageComponent" => "<div class='system'><strong>Welcome, $from->username</strong></div>"]));
 
             foreach($this->clients as $client) {
                 if($from !== $client) {
-                    $client->send(json_encode(['type' => 'system', 'message' => "Usuário {$from->username} entrou"]));            
+                    $client->send(json_encode([
+                        "messageComponent" => "<div class='system'><strong>Usuário $from->username entrou</strong></div>"
+                    ]));            
                 }
             }
             return;
         }
 
+        $from->send(json_encode([
+            "messageComponent" => "<div class='chat text-right'><br>$data->message</div>" 
+        ]));
+
         foreach($this->clients as $client) {
             if($from !== $client) {
-                $client->send(json_encode(['type' => 'chat', 'username' => $from->username, 'message' => $data->message]));            
+                $client->send(json_encode([
+                    "messageComponent" => "<div class='chat text-left'><strong>$from->username disse:</strong><br>$data->message</div>"
+                ]));            
             }
         }
     }

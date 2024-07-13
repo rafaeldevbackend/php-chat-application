@@ -2,10 +2,47 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>My chat</title>
     
     <style type="text/css">
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin: 5px 0;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            background-color: aliceblue;
+        }
+
+        main {
+            min-width: 650px;
+            max-width: 650px;
+            padding-top: 1em;
+        }
+
+        input {
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 5px;
+            resize: none;
+        }
+
+        button {
+            padding: 5px;
+        }
 
         form#message-form {
             display: none;
@@ -13,7 +50,6 @@
 
         output#chat {
             display: block;
-            width: 220px;
             padding: 15px 2px;
         }
 
@@ -37,19 +73,21 @@
     </style>
 </head>
 <body>
-    <h1>My Chat</h1>
-
-    <form id="user-form">
-        <input type="text" id="username" placeholder="Enter username">
-        <button>Connect</button>
-    </form>
-
-    <form id="message-form">
-        <input type="text" id="message" placeholder="type your message">
-        <button type="submit">Enviar</button>
-    </form>
-
-    <output id="chat"></output>
+    <main>
+        <h1>My Chat</h1>
+    
+        <form id="user-form">
+            <input type="text" id="username" placeholder="Enter username">
+            <button>Connect</button>
+        </form>
+    
+        <form id="message-form">
+            <textarea id="message" placeholder="type your message"></textarea>
+            <button type="submit">Send</button>
+        </form>
+    
+        <output id="chat"></output>
+    </main>
 
     <script type="text/javascript">
 
@@ -79,38 +117,15 @@
 
             socket.onmessage = function(e) {
                 const data = JSON.parse(e.data);
-
-                if(data.type == 'system') {
-                    const alert = document.createElement('div');
-                    alert.classList.add('system');
-                    alert.innerHTML = `
-                        <strong>${data.message}</strong><br>
-                    `;
-                    output.appendChild(alert);
-                } else if(data.type == 'chat') {
-                    const message = document.createElement('div');
-                    message.classList.add('message', 'text-left');
-                    message.innerHTML = `
-                        <strong><i>${data.username} disse:</i></strong></em>
-                        ${data.message}
-                    `;
-                    output.appendChild(message);
-                }
-
+                const message = document.createElement('div');
+                message.classList.add('message');
+                message.innerHTML = data['messageComponent'];
+                output.appendChild(message);
             };
 
-            document.getElementById('message-form').addEventListener('submit', function(e){
+            document.getElementById('message-form').addEventListener('submit', function(e) {
                 e.preventDefault();
-                
                 socket.send(JSON.stringify({type: 'chat', message: input.value}));
-
-                const message = document.createElement('div');
-                message.classList.add('message', 'text-right');
-                message.innerHTML = `
-                    <br>${input.value}
-                `;
-                output.appendChild(message);
-
                 input.value = '';
             });
         });
