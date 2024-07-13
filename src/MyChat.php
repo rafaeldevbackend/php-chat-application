@@ -54,15 +54,15 @@ class MyChat implements MessageComponentInterface {
             return;
         }
 
-        $from->send(json_encode([
-            "messageComponent" => "<div class='chat text-right'><br>$data->message</div>" 
-        ]));
-
         foreach($this->clients as $client) {
-            if($from !== $client) {
+            if($from === $client) {
+                $from->send(json_encode([
+                    "messageComponent" => "<div class='chat text-right'><br>$data->message</div>" 
+                ]));
+            } else {
                 $client->send(json_encode([
                     "messageComponent" => "<div class='chat text-left'><strong>$from->username disse:</strong><br>$data->message</div>"
-                ]));            
+                ]));  
             }
         }
     }
