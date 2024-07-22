@@ -26,7 +26,8 @@
         main {
             min-width: 650px;
             max-width: 650px;
-            padding-top: 1em;
+            padding: 0.25em 0.5em;
+            background-color: #ccc;
         }
 
         input {
@@ -46,11 +47,15 @@
 
         form#message-form {
             display: none;
+            padding: 0.25em 0;
         }
 
         output#chat {
+            height: calc(100% - 110px);
             display: block;
-            padding: 15px 2px;
+            padding: 0 15px 15px 15px;
+            background-color: #f0f0f0;
+            overflow-y: scroll;
         }
 
         .system {
@@ -80,13 +85,13 @@
             <input type="text" id="username" placeholder="Enter username">
             <button>Connect</button>
         </form>
-    
+
+        <output id="chat"></output>
+
         <form id="message-form">
             <textarea id="message" placeholder="type your message"></textarea>
             <button type="submit">Send</button>
         </form>
-    
-        <output id="chat"></output>
     </main>
 
     <script type="text/javascript">
@@ -110,7 +115,7 @@
                 const username = document.getElementById('username').value;
 
                 document.getElementById('user-form').style.display = 'none';
-                document.getElementById('message-form').style.display = 'block';
+                document.getElementById('message-form').style.display = 'flex';
 
                 socket.send(JSON.stringify({ type: 'connect', username: username }));
             };
