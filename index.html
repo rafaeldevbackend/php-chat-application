@@ -20,14 +20,25 @@
             height: 100vh;
             display: flex;
             justify-content: center;
-            background-color: aliceblue;
+            background-color: #1a1919;
         }
 
         main {
-            min-width: 650px;
-            max-width: 650px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 70vw;
             padding: 0.25em 0.5em;
-            background-color: #ccc;
+        }
+
+        form#user-form {
+            text-align: center;
+        }
+
+        input#username {
+            width: 320px;
+            padding: 15px;
         }
 
         input {
@@ -35,37 +46,70 @@
             border-radius: 5px;
         }
 
+        form#user-form button {
+            padding: 15px;
+        }
+
         textarea {
             width: 100%;
             padding: 5px;
             resize: none;
+            background-color: #1a1919;
+            color: #ffffff;
         }
 
         button {
             padding: 5px;
+            border: 1px solid #333;
+            background-color: #1a1919;
+            color: #ffffff;
         }
 
         form#message-form {
+            width: 100%;
             display: none;
             padding: 0.25em 0;
         }
 
         output#chat {
-            height: calc(100% - 110px);
-            display: block;
+            display: none;
+            width: 100%;
+            height: calc(100% - 61px);
             padding: 0 15px 15px 15px;
-            background-color: #f0f0f0;
+            background-color: #1a1919;
             overflow-y: scroll;
         }
 
         .system {
             margin: 12px 0;
-            color: red;
+            font-family: sans-serif;
+            font-size: small;
+            color: #2ba8bd;
+        }
+
+        .system span.system-message {
+            font-weight: bold;
         }
 
         .message {
             margin: 20px 0;
+            padding: 1px 10px 5px 10px;
             font-size: 15pt;
+            background-color: #27272763;
+            border-radius: 0 15px;
+        }
+
+        .chat {
+            line-height: 1.75em;
+            color: #abaaaa;
+        }
+
+        .chat span.message-header {
+            font-size: 12pt;
+        }
+
+        .chat span.message-text {
+            font-size: 14pt;
         }
 
         .text-left {
@@ -75,12 +119,19 @@
         .text-right {
             text-align: right;
         }
+
+        output#chat::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        output#chat::-webkit-scrollbar-thumb {
+            background-color: #373434;
+            border-radius: 20px;
+        }
     </style>
 </head>
 <body>
     <main>
-        <h1>My Chat</h1>
-    
         <form id="user-form">
             <input type="text" id="username" placeholder="Enter username">
             <button>Connect</button>
@@ -114,6 +165,7 @@
             socket.onopen = function(e) {
                 const username = document.getElementById('username').value;
 
+                document.querySelector('output#chat').style.display = 'block';
                 document.getElementById('user-form').style.display = 'none';
                 document.getElementById('message-form').style.display = 'flex';
 
