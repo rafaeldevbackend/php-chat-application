@@ -15,6 +15,28 @@ class MyChat implements MessageComponentInterface {
  
     public function onOpen(ConnectionInterface $conn) {
         $this->clients->attach($conn);
+
+        // Obtenha o cookie da sessão do cabeçalho HTTP
+        $cookies = $conn->httpRequest->getHeader('Cookie');
+        $cookies = explode('; ', $cookies[0]);
+
+        $session_id = '';
+        foreach ($cookies as $cookie) {
+            list($name, $value) = explode('=', $cookie, 2);
+            if ($name === 'PHPSESSID') {
+                $session_id = $value;
+                break;
+            }
+        }
+
+        if ($session_id) {
+            // Restaurar a sessão com o ID encontrado
+            session_id($session_id);
+            session_start();
+        } else {
+            echo "Sessão não encontrada\n";
+        }
+
         echo "Conexão de usuário: {$conn->resourceId}\n";
     }
 
