@@ -33,6 +33,8 @@ class MyChat implements MessageComponentInterface {
             // Restaurar a sessão com o ID encontrado
             session_id($session_id);
             session_start();
+
+            session_write_close();
         } else {
             echo "Sessão não encontrada\n";
         }
@@ -43,13 +45,13 @@ class MyChat implements MessageComponentInterface {
     public function onClose(ConnectionInterface $conn) {
         
         foreach($this->clients as $client) {
-            if($conn !== $client) {
-                $client->send(json_encode(["messageComponent" => "<div class='system'><strong>Usuário $conn->username desconectou</strong></div>"]));            
+            if($client != $conn) {
+                $client->send(json_encode(["messageComponent" => "<div class='system'><strong>Usuário {$conn->resourceId} desconectou</strong></div>"]));            
             }
         }
 
         $this->clients->detach($conn);
-        echo "Connection {$conn->username} has disconnected\n";
+        echo "Connection {$conn->resourceId} has disconnected\n";
     }
 
     public function onError(ConnectionInterface $conn, \Exception $e) {
@@ -59,22 +61,7 @@ class MyChat implements MessageComponentInterface {
 
     public function onMessage(ConnectionInterface $from, $msg) {
         
-        $data = json_decode($msg);
-
-        if($data->type == 'connect') {
-            $from->username = $data->username;
-
-            $from->send(json_encode(["messageComponent" => "<div class='system'><span class='system-message'>Welcome, $from->username</span></div>"]));
-
-            foreach($this->clients as $client) {
-                if($from !== $client) {
-                    $client->send(json_encode([
-                        "messageComponent" => "<div class='system'><span class='system-message'>Usuário $from->username entrou</span></div>"
-                    ]));            
-                }
-            }
-            return;
-        }
+        $data = json_decode($msg);      
 
         foreach($this->clients as $client) {
             if($from === $client) {
@@ -83,7 +70,7 @@ class MyChat implements MessageComponentInterface {
                 ]));
             } else {
                 $client->send(json_encode([
-                    "messageComponent" => "<div class='chat text-left'><span class='message-header'>$from->username disse:</span><br><span class='message-text'>$data->message</span></div>"
+                    "messageComponent" => "<div class='chat text-left'><span class='message-header'>{$_SESSION['email']} disse:</span><br><span class='message-text'>$data->message</span></div>"
                 ]));  
             }
         }
