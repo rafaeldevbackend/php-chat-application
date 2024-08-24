@@ -34,6 +34,12 @@ class MyChat implements MessageComponentInterface {
             session_id($session_id);
             session_start();
 
+            $conn->send(
+                json_encode([
+                    "messageComponent" => "<div class='system'><strong>Bem vindo {$_SESSION['email']}</strong></div>"
+                ])
+            );
+
             session_write_close();
         } else {
             echo "Sessão não encontrada\n";
